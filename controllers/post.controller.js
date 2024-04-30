@@ -10,17 +10,29 @@ export const getPosts = async (req, res) => {
     }
 };
 
-export const getPost = async (req, res) => {
+export const getPost = async (req, res, next) => {
     const id = req.params.id
     try {
         const post = await prisma.post.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                postDetail: true,
+                user: {
+                    select: {
+                        username: true,
+                        avatar: true
+                    }
+                }
+            } 
         })
 
+        if(!post) {
+          res.status(404);
+          throw new Error("This post cannot be found")
+        }
         res.status(200).json(post)
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Failed to get a Post" })
+        next(err);
     }
 };
 
@@ -56,7 +68,7 @@ export const updatePost = async (req, res) => {
 
 export const deletePost = async (req, res, next) => {
     const id = req.params.id;
-    const tokenUserId = req.userId
+    const tokenUserId = req.userId // logged in user Id 
 
     try {
         const post = await prisma.post.findUnique({
