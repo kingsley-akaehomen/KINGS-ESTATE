@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
+import { errorHandler } from "./middleware/errorHandler.js"
 import cookieParser from "cookie-parser";
 import postRoute from "./routes/post.route.js"
 import userRoute from "./routes/user.route.js"
@@ -12,6 +13,7 @@ import testRoute from "./routes/test.route.js"
 const app  = express();
 
 dotenv.config();
+
 //middleware
 app.use(cors({
     origin: ["http://localhost:3000"],
@@ -25,9 +27,10 @@ app.use("/api/users", userRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/test", testRoute);
 
+//Error middleware
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 8800
-
-
 
 app.listen(PORT, ()=> {
     console.log(`Server connected to port: ${PORT}`);  

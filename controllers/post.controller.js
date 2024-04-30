@@ -54,7 +54,7 @@ export const updatePost = async (req, res) => {
     }
 };
 
-export const deletePost = async (req, res) => {
+export const deletePost = async (req, res, next) => {
     const id = req.params.id;
     const tokenUserId = req.userId
 
@@ -64,7 +64,9 @@ export const deletePost = async (req, res) => {
         })
 
         if (post.userId !== tokenUserId) {
-            return res.status(403).json({ message: "Not Authorised" })
+            //return res.status(403).json({ message: "Not Authorised" })
+            res.status(403);
+            throw new Error("You are not Authorised")
         }
 
         await prisma.post.delete({
@@ -73,7 +75,8 @@ export const deletePost = async (req, res) => {
 
         res.status(200).json({ message: "Post deleted successful" })
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Failed to delete post" })
+        // console.log(err);
+        // res.status(500).json({message: err.stack})
+        next(err)
     }
 };
